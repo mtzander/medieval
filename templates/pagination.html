@@ -1,0 +1,53 @@
+{% macro pagination(page, pages, query, anchor) %}
+<div>
+{% if pages > 1 %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page > 1 %}
+    <li class="page-item">
+      <a class="page-link" href="?{{query}}&page=1#{{anchor}}" aria-label="First">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    {% endif %}
+    {% if page > 1 %}
+    <li class="page-item">
+      <a class="page-link" href="?{{query}}&page={{page-1}}#{{anchor}}" aria-label="Previous">
+        <span aria-hidden="true">&lt;</span>
+      </a>
+    </li>
+    {% endif %}
+    {% if page > 3 %}
+    <li class="page-item d-none d-sm-block disabled">
+      <a class="page-link" href="">...</a>
+    </li>
+    {% endif %}
+    {% for n in range([page-2, 1]|max, [[page-2, 1]|max+5, pages+1]|min) %}
+    <li class="d-none d-sm-block page-item {{ 'active d-block' if n == page }}">
+      <a class="page-link" href="?{{query}}&page={{n}}#{{anchor}}">{{n}}</a>
+    </li>
+    {% endfor %}
+    {% if page < pages - 2 %}
+    <li class="page-item d-none d-sm-block disabled">
+      <a class="page-link" href="">...</a>
+    </li>
+    {% endif %}
+    {% if page != pages %}
+    <li class="page-item">
+      <a class="page-link" href="?{{query}}&page={{page+1}}#{{anchor}}" aria-label="Next">
+        <span aria-hidden="true">&gt;</span>
+      </a>
+    </li>
+    {% endif %}
+    {% if page != pages %}
+    <li class="page-item">
+      <a class="page-link" href="?{{query}}&page={{pages}}#{{anchor}}" aria-label="Last">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+</div>
+{% endmacro %}

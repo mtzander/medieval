@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% from "citation.html" import citation %}
+{% from "label.html" import label %}
+
+{% block title %}{{art.name}}{% endblock %}
+{% block script %}
+{% if not metadata.minimal %}
+setupTagEditor({{art.id if metadata.mode == 'art' else image.id}}, "{{metadata.mode}}")
+{% endif %}
+function initMap() {
+  {% if art.latitude and art.longitude %}
+  setupDetailMap("{{art.name}}", {{art.latitude}}, {{art.longitude}})
+  {% endif %}
+}
+{% endblock %}
+{% block content %}
+<div class="modal" id="remove-confirmation" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm Tag Removal</h5>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to remove this tag? No one will be able to see it once you remove it.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="confirm-removal" data-dismiss="modal">{% trans %}Remove{% endtrans %}</button>
+        <button type="button" class="btn btn-secondary" id="dismiss-removal" data-dismiss="modal">{% trans %}Nevermind{% endtrans %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container-fluid px-0">
+  <div class="row">
+    {% if art.latitude and art.longitude %}
+    <div class="col col-auto">
+      <h4>Map</h4>
+      <div id="map" class="detail-map"></div>
+    </div>
+    {% endif %}
+    <div class="col col-auto">
+      <h4>Information</h4>
+      <table class="table-sm table-borderless">
+        {% if art.name %}
+        <tr>
+          <th scope="row text-right">{{metadata.art_alias}}</th>
+          <td>
+            {% if art.shelfmark %}{{art.shelfmark}} {% endif %}
+            {% if art.title %}{{art.title}} {% endif %}
+            {{art.name}}
+            {% if art.position %}, {{art.position}}{% endif %}
+          </td>
+        </tr>{% endif %}
+        <tr>
+          <th scope="row">Dating</th>
+          <td>{% if art.year_end > art.year_start %}<a href="/search?year_start={{art.year_start}}&year_end={{art.year_end}}">{{art.year_start}}-{{art.year_end}}</a>{% else %}<a href="/search?year_start={{art.year_start}}">{{art.year_start}}</a>{% endif %}</td>
+        </tr>
+        {% if place %}
+        <tr>
+          <th scope="row">Location</th>
+          <td><a href="/search?place={{place.id}}">{% if place.place %}{{place.place}}, {% endif %}{% if place.town %}{{place.town}}, {% endif %}{% if place.region %}{{place.region}}, {% endif %}</a><a href="/search?country={{place.country_id}}">{{place.country_name}}</a></td>
+        </tr>
+        {% endif %}
+        {% if art.institution_id %}
+        <tr>
+          <th scope="row">Institution</th>
+          <td><a href="/search?institution={{art.institution_id}}">{{art.institution_name}}</a></td>
+        </tr>
+        {% endif %}
+        {% if art.medium_id %}
+        <tr>
+          <th scope="row">Medium</th>
+          <td><a href="/search?medium={{art.medium_id}}">{{art.medium_name}}</a></td>
+        </tr>
+        {% endif %}
+        {% if image.folio %}
+        <tr>
+          <th scope="row">Folio</th>
+          <td>{{image.folio}}</td>
+        </tr>
+        {% endif %}
+        {% if art.url %}
+        <tr>
+          <th scope="row">URL</th>
+          <td><a target="_blank" href="{{art.url}}">{{art.url}}</a></td>
+        </tr>
+        {% endif %}
+        {% if genders|length > 0 %}
+        <tr>
+          <th scope="row">Gender</th>
+          <td>{% for gender in genders %}<a href="/search?gender={{gender.id}}">{{gender.name}}</a>{% if not loop.last %}, {% endif %}{% endfor %}</td>
+        </tr>
+        {% endif %}
+        {% if costumes|length > 0 %}
+        <tr>
+          <th scope="row">Costume</th>
+          <td>{% for costume in costumes %}<a href="/search?costume={{costume.id}}">{{costume.name}}</a>{% if not loop.last %}, {% endif %}{% endfor %}</td>
+        </tr>
+        {% endif %}
+        {% if art.inventory_number %}
+        <tr>
+          <th scope="row">Inventory Number</th>
+          <td>{{art.inventory_number}}</td>
+        </tr>
+        {% endif %}
+        {% if art.form_id %}
+        <tr>
+          <th scope="row">Form</th>
+          <td><a href="/search?form={{art.form_id}}">{{art.form_name}}</a></td>
+        </tr>
+        {% endif %}
+        {% if art.artist_id %}
+        <tr>
+          <th scope="row">Artist</th>
+          <td><a href="/search?artist={{art.artist_id}}">{{art.artist_name}}</a></td>
+        </tr>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+  {% if not metadata.minimal %}
+  <div class="row">
+    <div class="col col-auto">
+      <h4>Tags</h4>
+      <textarea name="tags">{{tags}}</textarea>
+    </div>
+  </div>
+  {% endif %}
+  <div class="row">
+    <div class="col col-auto">
+      <a id="image"><h4>Image</h4></a>
+      <p>{% if not image.rights %}Click the image below to be taken to the source.{% endif %}</p>
+      <figure class="figure">
+        {% if not image.rights %}<a target="_blank" href="{{image.page_url}}">{% endif %}
+        {% if image.rights %}<a href="/image/{{image.id}}">{% endif %}
+          <img src="/image/{{image.id}}/{{1000 if image.rights else 200}}" class="figure-img img-fluid rounded {{'figure-rights' if image.rights else 'figure-no-rights'}}">
+        </a>
+        <figcaption class="figure-caption">
+          {% if image.attribution %}&copy; {{image.attribution}}{% endif %}
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-auto">
+      <h4>Source</h4>
+      {{ citation(source, image) }}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-auto">
+      {% if related %}
+      <h4>Related</h4>
+      {% for image in related %}
+      <figure class="figure">
+        <a href="/{{art.id}}/{{image.id}}#image"><img src="/image/{{image.id}}/200" class="figure-img img-fluid rounded {{'figure-rights' if image.rights else 'figure-no-rights'}}"></a>
+        <figcaption class="figure-caption">{{ label(None, image) }}</figcaption>
+      </figure>
+      {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

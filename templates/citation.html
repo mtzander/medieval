@@ -1,0 +1,34 @@
+{% macro citation(source, image) %}
+
+{% if source %}
+  {% if source.type == 'Book' %}
+    {% for author in source.authors %}
+      {% if author.organization %}
+        {{author.organization}}
+      {%- else -%}
+        {% if loop.first %}
+          {{author.surname}}, {{author.given}}{% if author.middle %} {{author.middle}}{% if author.editor %}, Editor{% endif %}{% endif %}
+        {%- else -%}
+           and {{author.given}}{% if author.middle %} {{author.middle}}{% endif %} {{author.surname}}{% if author.editor %}, Editor{% endif %}
+        {%- endif -%}
+      {%- endif -%}
+    {%- endfor -%}.
+    {{source.published_year}}. <a href="/search?source={{source.id}}">{{source.name}}
+    {%- if source.volume %}. <i>Volume {{source.volume}}</i>{% if source.number %}({{source.number}}){% endif %}{% endif -%}</a>
+    {%- if image.page_location %}, p. {{image.page_location}}{% endif -%}.
+    {% if source.publisher_location %}{{source.publisher_location}}: {% endif %}
+    <i>{{source.publisher}}</i>{% if not source.publisher.endswith('.') %}.{% endif %}
+  {% elif source.type == 'Website' %}
+    {% if source.organization %}{{source.organization}}.{% endif %}
+    <a href="/search?source={{source.id}}">{{source.name}}</a>. {{source.url}}.
+  {% else %}
+    <a href="/search?source={{source.id}}">{{source.name}}</a>. {% if source.license_name %} (licensed under {% if source.license_url %}<a target="_blank" href="{{source.license_url}}">{% endif %}{{source.license_name}}{% if source.license_url %}</a>{% endif %}){% endif %}<br />
+  {% endif %}
+{% else %}
+  Public Domain
+{% endif %}
+
+{% if image.page_url %}<br /><a target="_blank" href="{{image.page_url}}">{{ image.page_url }}</a>{% endif %}
+{% if image.url %}<br /><a target="_blank" href="{{image.url}}">{{ image.url }}</a>{% endif %}
+
+{% endmacro %}

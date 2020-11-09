@@ -1,0 +1,8 @@
+.env
+*.mo
+*.tar.gz
+*.dump
+*.egg-info
+images
+venv
+__pycache__

@@ -1,0 +1,11 @@
+version: '3'
+services:
+  website:
+    image: medieval:latest
+    volumes:
+      - ./images:/medieval/images
+    ports:
+      - 1300:8000
+    environment:
+      - DATABASE_URL=${DB}
+      - IMAGE_PATH=/medieval/images

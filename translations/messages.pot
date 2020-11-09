@@ -1,0 +1,56 @@
+# Translations template for PROJECT.
+# Copyright (C) 2020 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2020-12-14 00:24+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.0\n"
+
+#: medieval/util.py:87 templates/home.html:5
+msgid "Home"
+msgstr ""
+
+#: medieval/util.py:91 templates/search.html:6 templates/search.html:20
+#: templates/search.html:118
+msgid "Search"
+msgstr ""
+
+#: medieval/util.py:92 templates/tags.html:3 templates/tags.html:5
+msgid "Tags"
+msgstr ""
+
+#: medieval/util.py:93 templates/sources.html:5 templates/sources.html:7
+msgid "Sources"
+msgstr ""
+
+#: medieval/util.py:96 templates/search.html:130
+msgid "Gallery"
+msgstr ""
+
+#: medieval/util.py:97 templates/about.html:3 templates/about.html:5
+msgid "About"
+msgstr ""
+
+#: templates/art.html:24
+msgid "Remove"
+msgstr ""
+
+#: templates/art.html:25
+msgid "Nevermind"
+msgstr ""
+
+#: templates/search.html:131
+msgid "Map"
+msgstr ""
+

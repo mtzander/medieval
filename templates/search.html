@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% from "pagination.html" import pagination %}
+{% from "label.html" import label %}
+
+{% block title %}{% trans %}Search{% endtrans %}{% endblock %}
+{% block script %}
+{% if not metadata.minimal %}
+setupReset()
+setupTagSearchField({{values.tag_id|safe if values.tag_id else '[]'|safe}})
+{% endif %}
+function initMap() {
+{% if map %}
+  setupFullMap([
+    {%- for art in results %}
+    {lat: {{art.latitude}}, lng: {{art.longitude}}, name: "{{label(art, None)}}", id: {{art.art_id}}}{{ ", " if not loop.last }}
+    {%- endfor %}
+  ])
+{% endif %}
+}
+{% endblock %}
+{% block content %}
+{% if not metadata.minimal %}
+<h4>{% trans %}Search{% endtrans %}</h4>
+<form method="get" action="/search#results" id="search">
+  <div class="form-row">
+    <div class="form-group col-4 col-sm-2">
+      <label for="year_start">Year</label>
+      <input type="number" class="form-control" id="year_start" name="year_start" value="{{values.year_start}}">
+    </div>
+    <div class="form-group col-4 col-sm-2">
+      <label for="year_end">to</label>
+      <input type="number" class="form-control" id="year_end" name="year_end" value="{{values.year_end}}">
+    </div>
+  </div>
+  {% if countries|length > 1 %}
+  <div class="form-row">
+    <div class="form-group col-12">
+      <label for="year_start">Country</label>
+      <div class="country-list">
+      {% for country in countries %}
+        <div class="form-check">
+	        <input class="form-check-input" type="checkbox" id="{{country.name}}" value="{{country.id}}" name="country" {{ "checked" if country.id in values.country_id }}>
+	        <label class="form-check-label" for="{{country.name}}">{{country.name}}</label>
+        </div>
+      {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  <div class="form-row">
+    {% if costumes|length > 1 %}
+    <div class="form-group col-4 col-sm-2">
+      <label for="year_start">Costume</label>
+      {% for costume in costumes %}
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="{{costume.name}}" value="{{costume.id}}" name="costume" {{ "checked" if costume.id in values.costume_id }}>
+        <label class="form-check-label" for="{{costume.name}}">{{costume.name}}</label>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% if genders|length > 1 %}
+    <div class="form-group col-4 col-sm-2">
+      <label for="year_end">Gender</label>
+      {% for gender in genders %}
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="{{gender.name}}" value="{{gender.id}}" name="gender" {{ "checked" if gender.id in values.gender_id }}>
+        <label class="form-check-label" for="{{gender.name}}">{{gender.name}}</label>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% if insitutions|length > 1 %}
+  <div class="form-group row">
+    <label for="institution" class="col-5 col-sm-2 col-form-label">Institution</label>
+    <div class="col-7 col-sm-4">
+      <select class="form-control" name="institution" id="institution">
+        <option value=""></option>
+        {% for institution in institutions %}
+        <option value="{{institution.id}}"{{' selected' if institution.id == values.institution_id}}>{{institution.name}}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  {% endif %}
+  {% if mediums|length > 1 %}
+  <div class="form-group row">
+    <label for="medium" class="col-5 col-sm-2 col-form-label">Medium</label>
+    <div class="col-7 col-sm-4">
+      <select class="form-control" name="medium" id="medium">
+        <option value=""></option>
+        {% for medium in mediums %}
+        <option value="{{medium.id}}"{{' selected' if medium.id == values.medium_id}}>{{medium.name}}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  {% endif %}
+  {% if art|length > 1 %}
+  <div class="form-group row">
+    <label for="art" class="col-5 col-sm-2 col-form-label">{{metadata.art_alias}}</label>
+    <div class="col-7 col-sm-4">
+      <select class="form-control" name="art" id="art">
+        <option value=""></option>
+        {% for item in art %}
+        <option value="{{item.id}}"{{' selected' if item.id == values.art_id}}>{{ label(item, None) }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  {% endif %}
+  <div class="form-group row">
+    <label for="tags" class="col-3 col-sm-2 col-form-label">Tags</label>
+    <div class="col-9 col-sm-4">
+      <textarea id='tags'>{{values.tag_id if values.tag_id else '[]'}}</textarea>
+      <input type="hidden" name="tag">
+    </div>
+  </div>
+  <div class="d-flex justify-content-center">
+    <button type="submit" name="{{'map' if map else 'gallery'}}" class="btn btn-primary mx-2 mt-1">{% trans %}Search{% endtrans %}</button>
+    <button type="button" id="reset" class="btn btn-secondary mx-2 mt-1">Reset</button>
+  </div>
+  <hr />
+  <div class="d-flex">
+    <div class="mr-auto">
+      <a id="results">
+        <h4>{{count | format_number }} {{metadata.art_alias|lower if metadata.mode == 'art' or map  else metadata.image_alias|lower}}{{'s' if count != 1}}</h4>
+      </a>
+    </div>
+    <div>
+      <div class="btn-group" role="group">
+        <button type="submit" name="gallery" class="btn {{'btn-primary' if not map else 'btn-secondary'}}">{% trans %}Gallery{% endtrans %}</button>
+        <button type="submit" name="map" class="btn {{'btn-primary' if map else 'btn-secondary'}}">{% trans %}Map{% endtrans %}</button>
+      </div>
+    </div>
+  </div>
+  <input type="hidden" name="source" value="{{values.source_id}}" />
+  <input type="hidden" name="place" value="{{values.place_id}}" />
+  <input type="hidden" name="artist" value="{{values.artist_id}}" />
+</form>
+{% endif %}
+{% if not map %}
+{{ pagination(page, pages, query, 'results') }}
+<div class="container-fluid">
+  <div class="row d-flex justify-content-center justify-content-md-start no-gutters">
+  {% for item in results %}
+    <div class="col col-auto d-flex align-items-end mx-2">
+      <figure class="figure">
+	      <a class="stretched-link justify-content-center d-flex" href="/{{item.art_id}}/{{item.image.id}}">
+          <img src="/image/{{item.image.id}}/{{'300' if item.image.rights else '200'}}" class="figure-img img-fluid rounded {{'figure-rights' if item.image.rights else 'figure-no-rights'}}">
+        </a>
+        <figcaption class="figure-caption text-center">{{ label(item, item.image, show_name=False) }}</figcaption>
+      </figure>
+    </div>
+  {% endfor %}
+  </div>
+</div>
+{{ pagination(page, pages, query, 'results') }}
+{% else %}
+<div id="map" class="search-map" />
+{% endif %}
+{% endblock %}

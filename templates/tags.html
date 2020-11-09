@@ -1,0 +1,12 @@
+{% extends "base.html" %}a
+
+{% block title %}{% trans %}Tags{% endtrans %}{% endblock %}
+{% block content %}
+<h4>{% trans %}Tags{% endtrans %}</h4>
+<div class="tag-list">
+{% for tag in tags %}
+  <a href="/search?tag={{tag.id}}#results">{{tag.name}}</a> ({{tag.count}})<br />
+{% endfor %}
+</div>
+{% endblock %}
+
