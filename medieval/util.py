@@ -106,9 +106,10 @@ async def javascript(_):
 def get_locales(request):
     """Get `accept-language` locales."""
     return [
-        lang.split(';')[0].replace('-', '_')
-        for lang in request.headers.get('accept-language', 'en').split(',')
-    ]
+        lang.split(';')[0][:2]
+        for lang in request.headers.get('accept-language', '').split(',')
+        if not lang.startswith('*') and lang != ''
+    ] + ['en']
 
 
 def get_menu(minimal=False, sources=True):

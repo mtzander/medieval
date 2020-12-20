@@ -123,6 +123,12 @@ def get_clause(field, comparison='eq'):
     return None
 
 
+def get_param_list(params, field):
+    """Get multi-valued field."""
+    for value in params.getlist(field):
+        yield from value.split(',')
+
+
 def builder(params, site_id, mode): # pylint: disable=too-many-branches
     """Build search query parts."""
     joins = [
@@ -145,17 +151,17 @@ def builder(params, site_id, mode): # pylint: disable=too-many-branches
         else:
             clauses.append(get_clause('year_start'))
     if 'country' in params:
-        values['country_id'] = list(map(int, params.getlist('country')))
+        values['country_id'] = list(map(int, get_param_list(params, 'country')))
         clauses.append(get_clause('country_id', 'in'))
     if 'costume' in params:
-        values['costume_id'] = list(map(int, params.getlist('costume')))
+        values['costume_id'] = list(map(int, get_param_list(params, 'costume')))
         clauses.append(get_clause('costume_id', 'in'))
         if mode is Mode.IMAGE:
             joins.append("join image_costume on image.id=image_costume.image_id")
         else:
             joins.append("join art_costume on art.id=art_costume.art_id")
     if 'gender' in params:
-        values['gender_id'] = list(map(int, params.getlist('gender')))
+        values['gender_id'] = list(map(int, get_param_list(params, 'gender')))
         clauses.append(get_clause('gender_id', 'in'))
         if mode is Mode.IMAGE:
             joins.append("join image_gender on image.id=image_gender.image_id")

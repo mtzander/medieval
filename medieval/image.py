@@ -36,5 +36,5 @@ async def image(request):
         )
         if not result:
             raise HTTPException(status_code=404)
-        await request.app.state.cache.set(key, result)
+        await request.app.state.cache.set(key, result, ttl=600)
     return Response(await request.app.state.cache.get(key))
