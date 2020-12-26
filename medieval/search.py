@@ -133,13 +133,12 @@ def builder(params, site_id, mode): # pylint: disable=too-many-branches
     """Build search query parts."""
     joins = [
         "join art_site on art.id=art_site.art_id",
+        "join image on art.id=image.art_id",
         "left join place on art.place_id=place.id",
         "left join country on place.country_id=country.id",
         "left join medium on art.medium_id=medium.id",
         "left join form on art.form_id=form.id"
     ]
-    if mode is Mode.IMAGE:
-        joins.append("join image on art.id=image.art_id")
     values = dict(site_id=site_id)
     clauses = ['site_id = :site_id']
     if 'year_start' in params and params['year_start']:
@@ -271,7 +270,7 @@ async def search(request): # pylint: disable=too-many-locals
     )
     countries, results, values = await asyncio.gather(
         country_choices(request, countries),
-        append_representative_image(request, results, mode),
+        append_representative_image(request, results, search_mode),
         update_tag_values(request, values)
     )
     return await template(request, 'search.html',
