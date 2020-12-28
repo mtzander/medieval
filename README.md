@@ -32,9 +32,8 @@ uvicorn medieval.main:APP --reload
 Deploy into production with Docker. Configuration assumes that the database is populated and art images are in a directory called `images` relative to the code root.
 
 ```bash
-export DB="<postgresql-connection=string>"
 docker build --rm -t medieval .
-docker-compose up -d
+POSTGRES_PASSWORD=<password> docker-compose up -d
 ```
 
 ## Translation

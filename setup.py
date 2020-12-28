@@ -1,10 +1,11 @@
+"""Setup."""
 from setuptools import setup, find_packages
 
 setup(
     name='medieval',
     version='3.0.0',
     description='',
-    url='',
+    url='https://github.com/mtzander/medieval',
     packages=find_packages(),
     install_requires=[
         'aiocache==0.11.1',

@@ -1,5 +1,15 @@
 version: '3'
 services:
+  db:
+    image: postgres:latest
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    ports:
+      - 1400:5432
+    environment:
+      - POSTGRES_DB=medieval
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
   website:
     image: medieval:latest
     volumes:
@@ -7,5 +17,7 @@ services:
     ports:
       - 1300:8000
     environment:
-      - DATABASE_URL=${DB}
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/medieval
       - IMAGE_PATH=/medieval/images
+    depends_on:
+      - db
