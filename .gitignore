@@ -5,4 +5,5 @@
 *.egg-info
 images
 venv
+db
 __pycache__

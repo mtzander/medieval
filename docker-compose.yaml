@@ -10,6 +10,7 @@ services:
       - POSTGRES_DB=medieval
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    restart: unless-stopped
   website:
     image: medieval:latest
     volumes:
@@ -21,3 +22,4 @@ services:
       - IMAGE_PATH=/medieval/images
     depends_on:
       - db
+    restart: unless-stopped

@@ -1,5 +1,7 @@
 """Tag routes."""
 
+import asyncpg
+
 from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse
 
@@ -70,8 +72,11 @@ async def tag_add(request):
     if not tag:
         await request.app.state.database.execute("insert into tag (name) values(:name)", dict(name=data['name']))
         tag = await get_tag_by_name(request.app.state.database, data['name'])
-    query = f"insert into {mode}_tag ({mode}_id, tag_id) values(:id, :tag_id)"
-    await request.app.state.database.execute(query, dict(id=int(data['id']), tag_id=tag['id']))
+    try:
+        query = f"insert into {mode}_tag ({mode}_id, tag_id) values(:id, :tag_id)"
+        await request.app.state.database.execute(query, dict(id=int(data['id']), tag_id=tag['id']))
+    except asyncpg.exceptions.UniqueViolationError:
+        pass
     return JSONResponse(tag['id'])
 
 

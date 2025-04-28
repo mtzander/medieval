@@ -51,7 +51,7 @@ class MultiStaticFiles(StaticFiles):
         domain = URL(scope=scope).hostname
         if self._force:
             domain = self._force
-        return pathlib.Path(domain, *scope['path'].split('/'))
+        return pathlib.Path(domain, pathlib.Path(scope['path']).name)
 
 
 def new_app():

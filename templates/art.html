@@ -9,9 +9,6 @@
 setupTagEditor({{art.id if metadata.mode == 'art' else image.id}}, "{{metadata.mode}}")
 {% endif %}
 function initMap() {
-  {% if art.latitude and art.longitude %}
-  setupDetailMap("{{art.name}}", {{art.latitude}}, {{art.longitude}})
-  {% endif %}
 }
 {% endblock %}
 {% block content %}
@@ -33,12 +30,6 @@ function initMap() {
 </div>
 <div class="container-fluid px-0">
   <div class="row">
-    {% if art.latitude and art.longitude %}
-    <div class="col col-auto">
-      <h4>Map</h4>
-      <div id="map" class="detail-map"></div>
-    </div>
-    {% endif %}
     <div class="col col-auto">
       <h4>Information</h4>
       <table class="table-sm table-borderless">

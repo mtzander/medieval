@@ -37,7 +37,15 @@ class ExtendedJinja2Templates(Jinja2Templates):
         )
 
 
-TEMPLATES = ExtendedJinja2Templates(directory='templates')
+#TEMPLATES = ExtendedJinja2Templates(directory='templates')
+
+ENV = jinja2.Environment(
+    loader=jinja2.FileSystemLoader("templates"),
+    autoescape=True,
+    extensions=['jinja2.ext.i18n']
+)
+TEMPLATES = Jinja2Templates(env=ENV)
+
 
 METADATA_QUERY = """
     select *
@@ -140,8 +148,7 @@ async def template(request, filename, **kwargs):
     TEMPLATES.env.install_gettext_translations(translations)
     TEMPLATES.env.filters['format_number'] = functools.partial(format_number, locale=locales[0])
 
-    return TEMPLATES.TemplateResponse(filename, dict(
-        request=request,
+    return TEMPLATES.TemplateResponse(request, filename, dict(
         active=request.url.path,
         metadata=request.app.state.metadata[domain(request)],
         year_current=datetime.today().year,
