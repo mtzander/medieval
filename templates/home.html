@@ -3,6 +3,11 @@
 {% from "label.html" import label %}
 
 {% block title %}{% trans %}Home{% endtrans %}{% endblock %}
+{% block og_title %}{% trans %}Home{% endtrans %}{% endblock %}
+{% block og_description}{% include metadata.domain + '/intro.html' %}{% endblock %}
+{% block twitter_card %}summary{% endblock %}
+{% block twitter_title %}{% trans %}Home{% endtrans %}{% endblock %}
+{% block twitter_description %}{% include metadata.domain + '/intro.html' %}{% endblock %}
 {% block content %}
 {% if not metadata.minimal %}
   <div class="container-fluid px-0">

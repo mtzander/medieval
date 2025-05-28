@@ -2,8 +2,16 @@
 
 {% from "citation.html" import citation %}
 {% from "label.html" import label %}
+{% from "label_text.html" import label_text %}
 
 {% block title %}{{art.name}}{% endblock %}
+{% block og_title %}{{art.name}}{% endblock %}
+{% block og_description %}{% if art.name %}{{metadata.art_alias}}: {{ label_text(art, image) }}{% endblock %}
+{% block og_image%}{% if image.rights %}/image/{{image.id}}{% else %}{{image.page_url}}{% endif%}{% endblock %}
+{% block twitter_card %}summary_large_image{% endblock %}
+{% block twitter_title %}{{art.name}}{% endblock %}
+{% block twitter_description %}{{metadata.art_alias}}: {{ label_text(art, image) }}{% endblock %}
+{% block twitter_image%}{% if image.rights %}/image/{{image.id}}{% else %}{{image.page_url}}{% endif%}{% endblock %}
 {% block script %}
 {% if not metadata.minimal %}
 setupTagEditor({{art.id if metadata.mode == 'art' else image.id}}, "{{metadata.mode}}")
