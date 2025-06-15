@@ -24,14 +24,14 @@ TAGS_BY_IMAGE = """
     join art_site on art_site.art_id=image.art_id
     where art_site.site_id=:site_id
     group by tag.id, tag.name
-     order by tag.name
+    order by tag.name
 """
 
 TAG_ART_SUGGEST = """
     select distinct tag.id, tag.name as value from tag
     join art_tag on tag.id=art_tag.tag_id
     join art_site on art_site.art_id=art_tag.art_id
-     where name ilike :input and art_site.site_id=:site_id
+    where name ilike :input and art_site.site_id=:site_id
 """
 
 TAG_IMAGE_SUGGEST = """
@@ -55,7 +55,7 @@ async def tags(request):
         raise HTTPException(status_code=404)
     query = TAGS_BY_ART if site(request, 'mode') is Mode.ART else TAGS_BY_IMAGE
     return await template(request, 'tags.html',
-        tags=await request.app.state.database.fetch_all(query, dict(site_id=site(request, 'id')))
+        tags=[dict(r) for r in await request.app.state.database.fetch_all(query, dict(site_id=site(request, 'id')))]
     )
 
 
