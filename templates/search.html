@@ -4,6 +4,8 @@
 {% from "label.html" import label %}
 
 {% block title %}{% trans %}Search{% endtrans %}{% endblock %}
+{% block og_title %}{% trans %}Search{% endtrans %}{% endblock %}
+{% block twitter_title %}{% trans %}Search{% endtrans %}{% endblock %}
 {% block script %}
 {% if not metadata.minimal %}
 setupReset()

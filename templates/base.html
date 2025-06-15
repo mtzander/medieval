@@ -24,7 +24,20 @@
     <link rel="stylesheet" type="text/css" href="/css">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Forum&display=swap" rel="stylesheet">
+    
     <title>{{metadata.name}}: {% block title %}{% endblock %}</title>
+    
+    <!-- Open Graph Metadata -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{{metadata.name}}: {% block og_title %}{% endblock %}" />
+    <meta property="og:description" content="{% block og_description %}{% endblock %}" />
+    <meta property="og:image" content="{% block og_image %}{% endblock %}" />
+    
+    <!-- Twitter Preview Metadata-->
+    <meta name="twitter:card" content="{% block twitter_card %}summary{% endblock %}" />
+    <meta name="twitter:title" content="{{metadata.name}}: {% block twitter_title %}{% endblock %}" />
+    <meta name="twitter:description" content="{% block twitter_description %}{% endblock %}" />
+    <meta name="twitter:image" content="{% block twitter_image %}{% endblock %}" />
   </head>
   <body>
     <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
