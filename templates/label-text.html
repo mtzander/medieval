@@ -1,4 +1,0 @@
-{% macro label_text(art, image, show_name=True) %}
-{%- if show_name -%}{%- if art.shelfmark %}{{art.shelfmark}} {% endif %}{% if art.name %}{{art.name|safe}}, {% elif art.form %}{{art.form}}, {% elif art.medium %}{{art.medium}}, {% endif %}{% endif %}{% if image.folio %}f{{image.folio}}{% if art.year_start %}, {% endif %}{% endif -%}
-{{art.year_start}}{{'-' if art and art.year_end and art.year_end > art.year_start}}{{art.year_end if art and art.year_end and art.year_end > art.year_start}}{% if art.country %}, {{art.country}}{% endif %}{% if image.attribution %}. © {{image.attribution}}{% endif -%}
-{% endmacro %}
