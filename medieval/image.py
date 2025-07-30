@@ -46,4 +46,6 @@ async def image(request):
     #    async with aiofiles.open(fs_cache, mode='rb') as f:
     #        result = await f.read()
     #return Response(await request.app.state.cache.get(key))
-    return Response(result)
+    return Response(result, headers={
+         "Cache-Control": "public, max-age=31536000, immutable"
+    })
