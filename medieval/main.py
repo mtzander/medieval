@@ -12,7 +12,7 @@ from starlette.staticfiles import StaticFiles
 import aiocache
 
 from medieval import home, search, tags, art, image, sources, about
-from medieval.util import css, javascript, favicon, metadata
+from medieval.util import css, javascript, favicon, metadata, prerender_css
 
 
 class Manager:
@@ -27,11 +27,14 @@ class Manager:
         self.emulate = config('EMULATE', cast=str, default=None)
         self.cache = aiocache.Cache(aiocache.Cache.MEMORY)
         self.metadata = {}
+        self.css_by_domain = {}
 
     async def startup(self):
         """Called on startup."""
         await self.database.connect()
+        (self.image_path / 'cache').mkdir(exist_ok=True)
         self.metadata = await metadata(self.database)
+        self.css_by_domain = prerender_css(self.metadata)
 
     async def shutdown(self):
         """Called on shutdown."""

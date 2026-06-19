@@ -18,6 +18,10 @@ from rcssmin import cssmin
 from rjsmin import jsmin
 
 
+CSS_MEDIA_TYPE = 'text/css'
+JS_MEDIA_TYPE = 'text/javascript'
+
+
 class Mode(Enum):
     """Site modes."""
 
@@ -91,24 +95,41 @@ async def favicon(_):
     return RedirectResponse('/assets/favicon.ico')
 
 
+def prerender_css(metadata_by_domain):
+    """Pre-render and minify CSS for every active site.
+
+    Returns a dict mapping domain -> minified CSS bytes. Run once at startup;
+    the `css` route serves these bytes directly with no per-request work.
+    """
+    template = TEMPLATES.get_template('medieval.css')
+    rendered = {}
+    for site_domain, data in metadata_by_domain.items():
+        primary_color = data['primary_color']
+        rendered[site_domain] = cssmin(template.render(
+            primary_color=primary_color,
+            foreground=get_foreground(primary_color),
+            domain=data['domain'],
+        )).encode('utf-8')
+    return rendered
+
+
+# Minify medieval.js exactly once at import. It takes no template variables
+# so there is exactly one possible output.
+_JS_MINIFIED = jsmin(TEMPLATES.get_template('medieval.js').render()).encode('utf-8')
+
+
 async def css(request):
     """CSS route."""
-    return Response(
-        cssmin(TEMPLATES.get_template('medieval.css').render(
-            primary_color=site(request, 'primary_color'),
-            foreground=get_foreground(site(request, 'primary_color')),
-            domain=site(request, 'domain')
-        )),
-        media_type='text/css'
-    )
+    site_domain = domain(request)
+    rendered = request.app.state.css_by_domain.get(site_domain)
+    if rendered is None:
+        raise HTTPException(status_code=404)
+    return Response(rendered, media_type=CSS_MEDIA_TYPE)
 
 
 async def javascript(_):
     """Javascript route."""
-    return Response(
-        jsmin(TEMPLATES.get_template('medieval.js').render()),
-        media_type='text/javascript'
-    )
+    return Response(_JS_MINIFIED, media_type=JS_MEDIA_TYPE)
 
 
 def get_locales(request):
@@ -138,13 +159,19 @@ def get_menu(minimal=False, sources=True):
     return links
 
 
+@functools.lru_cache(maxsize=8)
+def _load_translations(locales):
+    """Load gettext translations for a tuple of locales (cached)."""
+    return Translations.load('translations', locales=list(locales))
+
+
 async def template(request, filename, **kwargs):
     """Render a template response."""
     if domain(request) not in request.app.state.metadata:
         raise HTTPException(status_code=404)
 
     locales = get_locales(request)
-    translations = Translations.load('translations', locales=locales)
+    translations = _load_translations(tuple(locales))
     TEMPLATES.env.install_gettext_translations(translations)
     TEMPLATES.env.filters['format_number'] = functools.partial(format_number, locale=locales[0])
 
