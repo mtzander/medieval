@@ -9,7 +9,9 @@ from starlette.exceptions import HTTPException
 from starlette.responses import Response
 
 
-CACHED_SIZES = frozenset({200, 300, 400})
+# Only sizes the templates actually request. Anything else is rejected so a
+# crafted URL can't force an arbitrarily large resize (e.g. /image/1/100000).
+ALLOWED_SIZES = frozenset({200, 300, 400, 1000})
 
 CACHE_HEADERS = {
     "Cache-Control": "public, max-age=31536000, immutable"
@@ -64,13 +66,14 @@ async def image(request):
     """Fetch an image."""
     image_id = request.path_params['image_id']
     size = request.path_params.get('size')
+    if size is not None and size not in ALLOWED_SIZES:
+        raise HTTPException(status_code=404)
 
-    cache_file = None
-    if size in CACHED_SIZES:
-        cache_file = request.app.state.image_path / 'cache' / f'{image_id}x{size}.webp'
-        cached = await asyncio.to_thread(_read_cached, cache_file)
-        if cached is not None:
-            return Response(cached, headers=CACHE_HEADERS)
+    cache_name = f'{image_id}x{size}.webp' if size else f'{image_id}.webp'
+    cache_file = request.app.state.image_path / 'cache' / cache_name
+    cached = await asyncio.to_thread(_read_cached, cache_file)
+    if cached is not None:
+        return Response(cached, headers=CACHE_HEADERS)
 
     row = await request.app.state.database.fetch_one(
         "select path from image where id=:id", values=dict(id=image_id)
@@ -84,7 +87,6 @@ async def image(request):
     if not result:
         raise HTTPException(status_code=404)
 
-    if cache_file is not None:
-        await asyncio.to_thread(_write_cached, cache_file, result)
+    await asyncio.to_thread(_write_cached, cache_file, result)
 
     return Response(result, headers=CACHE_HEADERS)

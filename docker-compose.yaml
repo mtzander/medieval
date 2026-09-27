@@ -20,6 +20,9 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/medieval
       - IMAGE_PATH=/medieval/images
+      # Fixed mmap threshold: stops glibc from keeping freed Pillow image
+      # buffers in per-thread arenas (RSS grew to 1.5GB+ via fragmentation).
+      - MALLOC_MMAP_THRESHOLD_=131072
     depends_on:
       - db
     restart: unless-stopped
